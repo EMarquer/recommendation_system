@@ -4,12 +4,12 @@
 
 ## Asssignments
 
-[ ] Study competition (close contexts) pros/cons
-[ ] Analyse data provided:  information, statistics...
-[ ] Propose features for your recommender
-[x] Find and analyse recommender tools that you can use
-[ ] Implement 2 approaches(argue yourchoices)
-[ ] Analyse and conclude
+- [ ] Study competition (close contexts) pros/cons
+- [ ] Analyse data provided:  information, statistics...
+- [ ] Propose features for your recommender
+- [x] Find and analyse recommender tools that you can use
+- [ ] Implement 2 approaches(argue yourchoices)
+- [ ] Analyse and conclude
 
 
 
