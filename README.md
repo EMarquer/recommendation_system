@@ -29,5 +29,5 @@
 
 ### 
 - [Surprise](http://surpriselib.com/)
-- 
+- [Fast.ai](https://www.fast.ai/) 
 -
