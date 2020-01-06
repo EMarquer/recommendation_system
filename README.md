@@ -4,12 +4,12 @@
 
 ## Asssignments
 
-1. Study competition (close contexts) pros/cons
-1. Analyse data provided:  information, statistics...
-1. Propose features for your recommender
-1. Find and analyse recommender tools that you can use
-1. Implement 2 approaches(argue yourchoices)
-1. Analyse and conclude
+[ ] Study competition (close contexts) pros/cons
+[ ] Analyse data provided:  information, statistics...
+[ ] Propose features for your recommender
+[x] Find and analyse recommender tools that you can use
+[ ] Implement 2 approaches(argue yourchoices)
+[ ] Analyse and conclude
 
 
 
@@ -21,6 +21,11 @@
 - Easy to use
 - 1 Model based
 - 1 Memory based
+
+### Memory based
+- Item-Item Collaborative Filtering
+- User-Item Collaborative Filtering
+
 
 ### Model based
 
