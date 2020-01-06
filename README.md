@@ -27,7 +27,7 @@
 ![img](https://miro.medium.com/max/1348/1*0vyDJr3urOA6uy-39cr91g.png)
 
 
-### 
+### List of tools
 - [Surprise](http://surpriselib.com/)
 - [Fast.ai](https://www.fast.ai/) 
 - [Scikit](https://scikit-learn.org/stable/)
