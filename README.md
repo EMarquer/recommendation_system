@@ -30,4 +30,6 @@
 ### 
 - [Surprise](http://surpriselib.com/)
 - [Fast.ai](https://www.fast.ai/) 
--
+- [Scikit](https://scikit-learn.org/stable/)
+- [Pytorch](https://pytorch.org/)
+- [Implicit](https://github.com/benfred/implicit)
