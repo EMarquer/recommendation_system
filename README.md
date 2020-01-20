@@ -1,4 +1,19 @@
-# recommendation_system
+# Recommendation system
+
+## Context
+You've been hired by BeYourTripCompany
+- Proposes hotels night stays
+- Website already fully operational
+- Features
+  - Search a hotel
+  - Provide feedback
+  
+BeYourTrip wants to integrate a recommender system
+
+- Customer identified / Anonymous users
+- Recommendations
+- Improve user experience
+- Increase sales
 
 
 
