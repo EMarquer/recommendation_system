@@ -3,6 +3,10 @@ import pandas as pd
 from math import exp
 
 SPRING, SUMMER, AUTUMN, WINTER = "printemps", "été", "automne", "hiver"
+GLOBAL_SCORES = "recomender system score"
+AVERAGE_SCORES = "average user score"
+RECENCY_SCORES = "recency distribution"
+POSITIVITY_SCORES = "positivity distribution"
 
 def rank_from_scores(df: pd.DataFrame,
         city: t.Optional[str]=None,
@@ -22,12 +26,12 @@ def rank_from_scores(df: pd.DataFrame,
     if season is not None:
         month = df["stay_date"].dt.month
         is_season = month.isin(
-            ({1, 2, 3} if season == SPRING else set()).union(
-                {4, 5, 6} if season == SUMMER else set()
+            ({3, 4, 5} if SPRING in season else set()).union(
+                {6, 7, 8} if SUMMER in season else set()
             ).union(
-                {7, 8, 9} if season == AUTUMN else set()
+                {9, 10, 11} if AUTUMN in season else set()
             ).union(
-                {10, 11, 12} if season == WINTER else set()
+                {12, 1, 2} if WINTER in season else set()
             ))
         
         print(f"filter by season: old {len(df)}, new {is_season.sum()}")
@@ -37,17 +41,15 @@ def rank_from_scores(df: pd.DataFrame,
     scores = df["rating"] * df['user_expertise']
 
     # ponderate the scores by the recency of the review (exp(-x), x being the number of days since the review was posted)
-    if recency:
-        recency_multiplier = df["gap_stay_today"].dt.days.apply(lambda days: exp(-days))
+    recency_multiplier = df["gap_stay_today"].dt.days.apply(lambda days: exp(-days))
 
     # ponderate with the positivity scores
-    if positivity:
-        positivity_scores = (df["text_polarity"] * (1 - df["text_objectivity"]))
-        positivity_scores += (df["title_polarity"] * (1 - df["title_objectivity"]))
-        positivity_scores /= 2
+    positivity_scores = (df["text_polarity"] * (1 - df["text_objectivity"]))
+    positivity_scores += (df["title_polarity"] * (1 - df["title_objectivity"]))
+    positivity_scores /= 2
 
     # weighted average
-    def weighted_avg(group):
+    def process_hotel(group):
         indexes = group.index
 
         weighted_values = group
@@ -70,10 +72,27 @@ def rank_from_scores(df: pd.DataFrame,
         return weighted_values.sum() / weights
     
     # compute the score of each hotel
-    final_scores = scores.groupby(df["hotel"][scores.index]).apply(weighted_avg)
+    final_scores = scores.groupby(df["hotel"][scores.index]).apply(process_hotel)
+    final_scores = final_scores.rename(GLOBAL_SCORES)
+    final_scores = final_scores.to_frame()
 
-    # remove low scores
-    final_scores = final_scores[final_scores >= min_score]
+    # add the average score per hotel
+    average_scores = df["rating"][scores.index].groupby(df["hotel"][scores.index]).mean()
+    average_scores = average_scores.rename(AVERAGE_SCORES)
+    final_scores = final_scores.join(average_scores)
+
+    # add the recency distribution per hotel
+    recency_multiplier_hotel = recency_multiplier[scores.index].groupby(df["hotel"][scores.index]).apply(list)
+    recency_multiplier_hotel = recency_multiplier_hotel.rename(RECENCY_SCORES)
+    final_scores = final_scores.join(recency_multiplier_hotel)
+
+    # add the positivity distribution per hotel
+    positivity_scores_hotel = positivity_scores[scores.index].groupby(df["hotel"][scores.index]).apply(list)
+    positivity_scores_hotel = positivity_scores_hotel.rename(POSITIVITY_SCORES)
+    final_scores = final_scores.join(positivity_scores_hotel)
+
+    # remove low average scores
+    final_scores = final_scores[final_scores[AVERAGE_SCORES] >= min_score]
 
     # ponderate the score with the user-specific score of the hotel
     #if user_based_score is not None:
@@ -93,7 +112,9 @@ if __name__ == "__main__":
     print(final_scores.head())
     final_scores = rank_from_scores(df, min_score=4)
     print(final_scores.head())
-    final_scores = rank_from_scores(df, season=SPRING)
+    final_scores = rank_from_scores(df, season={SPRING})
+    print(final_scores.head())
+    final_scores = rank_from_scores(df, season={SUMMER, SPRING})
     print(final_scores.head())
     final_scores = rank_from_scores(df, recency=False)
     print(final_scores.head())
