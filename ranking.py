@@ -1,6 +1,6 @@
 import typing as t
 import pandas as pd
-from math import exp
+from math import exp, tanh
 
 SPRING, SUMMER, AUTUMN, WINTER = "printemps", "été", "automne", "hiver"
 GLOBAL_SCORES = "recomender system score"
@@ -37,8 +37,8 @@ def rank_from_scores(df: pd.DataFrame,
         print(f"filter by season: old {len(df)}, new {is_season.sum()}")
         df = df[is_season]
 
-    # compute the base score value of the review
-    scores = df["rating"] * df['user_expertise']
+    # --- compute the base score value of the review ---
+    scores = df["rating"]
 
     # ponderate the scores by the recency of the review (exp(-x), x being the number of days since the review was posted)
     recency_multiplier = df["gap_stay_today"].dt.days.apply(lambda days: exp(-days))
@@ -52,24 +52,26 @@ def rank_from_scores(df: pd.DataFrame,
     def process_hotel(group):
         indexes = group.index
 
-        weighted_values = group
+        # compute the full weights to apply
+        # the full weights are the products of all the partial weights used, allways at least the expertise
+        
+        # the expertise (+1 because it start at 0) is the base weight 
+        expertise_weight = 1 + df['user_expertise'][indexes]
+        weights = expertise_weight
 
+        # add the recency weighting if necessary
         if recency:
             recency_multiplier_group = recency_multiplier[indexes]
-            weighted_values *= recency_multiplier_group
+            weights *= recency_multiplier_group
 
+        # add the recency weighting if necessary
         if positivity:
             positivity_scores_group = positivity_scores[indexes]
-            weighted_values *= positivity_scores_group
+            weights *= positivity_scores_group
 
-        weights = (
-            (recency_multiplier_group * positivity_scores_group).sum() if recency and positivity else
-            recency_multiplier_group.sum() if recency else
-            positivity_scores_group.sum() if positivity else
-            len(weighted_values) # no weights, standard average
-        )
-
-        return weighted_values.sum() / weights
+        # return the weighted scores
+        scores = group
+        return (scores * weights).sum() / weights.sum()
     
     # compute the score of each hotel
     final_scores = scores.groupby(df["hotel"][scores.index]).apply(process_hotel)
