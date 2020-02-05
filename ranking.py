@@ -7,6 +7,7 @@ GLOBAL_SCORES = "recomender system score"
 AVERAGE_SCORES = "average user score"
 RECENCY_SCORES = "recency distribution"
 POSITIVITY_SCORES = "positivity distribution"
+NUM_MATCHING_RATINGS = "nombre d'avis correspondant aux filtres"
 
 def rank_from_scores(df: pd.DataFrame,
         city: t.Optional[str]=None,
@@ -87,6 +88,11 @@ def rank_from_scores(df: pd.DataFrame,
     recency_multiplier_hotel = recency_multiplier[scores.index].groupby(df["hotel"][scores.index]).apply(list)
     recency_multiplier_hotel = recency_multiplier_hotel.rename(RECENCY_SCORES)
     final_scores = final_scores.join(recency_multiplier_hotel)
+    
+    # add the number of ratings per hotel
+    num_ratings_hotel = recency_multiplier[scores.index].groupby(df["hotel"][scores.index]).apply(len)
+    num_ratings_hotel = num_ratings_hotel.rename(NUM_MATCHING_RATINGS)
+    final_scores = final_scores.join(num_ratings_hotel)
 
     # add the positivity distribution per hotel
     positivity_scores_hotel = positivity_scores[scores.index].groupby(df["hotel"][scores.index]).apply(list)
@@ -98,6 +104,8 @@ def rank_from_scores(df: pd.DataFrame,
 
     # ponderate the score with the user-specific score of the hotel
     #if user_based_score is not None:
+
+    final_scores = final_scores.sort_values(by=[GLOBAL_SCORES, AVERAGE_SCORES, NUM_MATCHING_RATINGS], ascending=False)
 
     return final_scores
 
