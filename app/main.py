@@ -4,47 +4,57 @@ import pandas as pd
 import time
 import svd
 
-"""
-# Recommandation
-
-"""
 
 
-# Sidebar definition
+# CONSTANTS
+SEASONS = ('Automne', 'Hiver', 'Éte','Printemps')
 
-# Title of the sidebar
-st.sidebar.title("Parameters")
+TITLE = "Recommandation"
+SIDE_TITLE = "Paramètres"
+
+SCORE_FILTERING_MESSAGE = "Filtrer par le score moyen des avis :"
+LOCATION_MESSAGE = "Entrez votre position :"
+SEASON_DEPARTURE_MESSAGE = "Quand souhaitez-vous partir ?"
+IDENTIFIER_MESSAGE="Taper votre identifiant : "
+RECENT_REVIEW_MESSAGE = "Je souhaite privilégier les avis récents."
+ACCOUNT_SENT_ANALYSIS_MESSAGE = "Je souhaite utiliser la valence émotionelle du contenu des avis."
+HISTORY_MESSAGE = "Je souhaite utiliser mon historique."
+LOADING_MESSAGE = "Patientez un instant."
+DETAILS_MESSAGE = "Je souhaite voir les détails."
+
+LABEL_BUTTON_SEARCH = "Rechercher"
+
+# UI
+st.title(TITLE)
+st.sidebar.title(SIDE_TITLE)
 
 # Filter by  mean score for each hotel
-review_score_threshold = st.sidebar.slider("Filter by score review:",min_value=0,max_value = 5,step=1)
-
-
+review_score_threshold = st.sidebar.slider(SCORE_FILTERING_MESSAGE,
+                                           min_value=0,
+                                           max_value = 5,
+                                           step=1)
 # User location
-user_location = st.sidebar.text_input("Enter your city location?")
+user_location = st.sidebar.text_input(LOCATION_MESSAGE)
 
 # Season
-season = st.sidebar.multiselect(
-    'when do you want to leave',
-    ('Autumn', 'Winter', 'Summer','Spring'))
+season = st.sidebar.multiselect(SEASON_DEPARTURE_MESSAGE,SEASONS)
 
 
-use_history = st.sidebar.checkbox("I want to use my history.")
+use_history = st.sidebar.checkbox(HISTORY_MESSAGE)
 
 if use_history:
     
-
 # Identifier (We should apply less 1 to have the correct id )
     user_id = st.sidebar.number_input(
-        "Enter your user id:",
+        IDENTIFIER_MESSAGE,
         step = 1,min_value=0,value=0
     )
 
-prioritize = st.sidebar.checkbox("I want to prioritize the recent review.")
+# Checkboxes
+prioritize = st.sidebar.checkbox(RECENT_REVIEW_MESSAGE)
+sent_analysis = st.sidebar.checkbox(ACCOUNT_SENT_ANALYSIS_MESSAGE)
+more_details= st.sidebar.checkbox(DETAILS_MESSAGE)
 
-sent_analysis = st.sidebar.checkbox("I want to use the content of the review.*")
-
-#if sent_analysis:
-#    sentiment = st.sidebar.radio("Choose the posivity score.",(':smiley', 'Drama', 'Documentary'))
 
 
 def recommand_ui():
@@ -61,52 +71,13 @@ def recommand_ui():
 def recommand(): 
     pass
 
+if st.sidebar.button(LABEL_BUTTON_SEARCH):
 
-if st.sidebar.button('Recommend me hotels'):
-
-    with st.spinner('Wait for it...'):
+    with st.spinner(LOADING_MESSAGE):
         my_bar = st.progress(0)
         for percent_complete in range(100):
             time.sleep(0.05)
             my_bar.progress(percent_complete + 1)
         recommand_ui()
-    st.success('Done!')
-    my_bar = None
-
-
-
-
-
-
-#      ["Memory based","Model based"])
-
-
-
-# user_city = st.sidebar.text_input("What is your current Location ?")
-
-# user_id = st.sidebar.text_input("What is your user id ?")
-
-# trip_date = st.sidebar.date_input("When will you arrive ?", value=None, key=None)
-
-
-# review_filter = st.sidebar.slider("Filter by score review:",min_value=0,max_value = 5,step=1)
-
-
-# #st.image('210996409.jpg',use_column_width=True)
-
-# df = pd.DataFrame(
-#     np.random.randn(1000, 2) / [50, 50] + [43.76, -115.4],
-#     columns=['lat', 'lon'])
-# st.map(df)
-
-
-# #df = pd.read_csv('false_sample.csv')
-# #st.table(df)
-
-
-
-
-# def recommendation(user_id ,user_city,trip_date,review_criterion):
-#     pass
-
+    my_bar.empty()
 
