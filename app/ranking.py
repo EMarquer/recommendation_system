@@ -44,10 +44,14 @@ def rank_from_scores(df: pd.DataFrame,
     # ponderate the scores by the recency of the review (exp(-x), x being the number of days since the review was posted)
     recency_multiplier = df["gap_stay_today"].dt.days.apply(lambda days: exp(-days))
 
-    # ponderate with the positivity scores
+    # compute the positivity scores
     positivity_scores = (df["text_polarity"] * (1 - df["text_objectivity"]))
     positivity_scores += (df["title_polarity"] * (1 - df["title_objectivity"]))
     positivity_scores /= 2
+
+    # compute the similarity between the rating and the positivity_scores
+    centered_scores = (scores - 3) / 2  # bring the score to -1, 1
+    polarity_similarity = 1 - ((positivity_scores - centered_scores).apply(abs)/2)
 
     # weighted average
     def process_hotel(group):
@@ -65,10 +69,10 @@ def rank_from_scores(df: pd.DataFrame,
             recency_multiplier_group = recency_multiplier[indexes]
             weights *= recency_multiplier_group
 
-        # add the recency weighting if necessary
+        # add the polarity weighting if necessary
         if positivity:
-            positivity_scores_group = positivity_scores[indexes]
-            weights *= positivity_scores_group
+            polarity_similarity_group = polarity_similarity[indexes]
+            weights *= polarity_similarity_group
 
         # return the weighted scores
         scores = group
