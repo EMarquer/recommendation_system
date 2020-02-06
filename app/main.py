@@ -102,9 +102,23 @@ def recommand_ui():
 
 
     def row_to_gui(top_k,detail):
-        top_k = top_k[[AVERAGE_SCORE, ranking.AVERAGE_SCORES, 
+
+
+        if detail and user_id:
+            sort_col = [AVERAGE_SCORE, ranking.AVERAGE_SCORES, 
                        svd.SCORE_SVD,
-                       ranking.GLOBAL_SCORES, ranking.RECENCY_SCORES, ranking.POSITIVITY_SCORES, ranking.NUM_MATCHING_RATINGS]]
+                       ranking.GLOBAL_SCORES, ranking.RECENCY_SCORES, ranking.POSITIVITY_SCORES, ranking.NUM_MATCHING_RATINGS]
+
+
+        elif detail and not user_id:
+            sort_col = [ranking.AVERAGE_SCORES, 
+                       ranking.GLOBAL_SCORES, ranking.RECENCY_SCORES, ranking.POSITIVITY_SCORES, ranking.NUM_MATCHING_RATINGS]
+
+        else:
+            sort_col = [ranking.GLOBAL_SCORES]
+            
+        top_k = top_k[sort_col]
+
         
         col_sel = [ranking.GLOBAL_SCORES]
         
@@ -113,19 +127,20 @@ def recommand_ui():
         
         if user_id:
             
+            seen = set()
             col_sel = [c for c in col_sel] + [svd.SCORE_SVD,AVERAGE_SCORE]
-            col_sel = list(set(col_sel))
-                    
+            col_sel = [x for x in col_sel if not (x in seen or seen.add(x))]
+            
         for index, row in top_k.iterrows():
             st.table(row[col_sel])
 
             if detail:
                 plt.hist(row[ranking.RECENCY_SCORES])
-                plt.title("Distribution de la récence")
+                plt.title(ranking.RECENCY_SCORES)
                 st.pyplot()
 
                 plt.hist(row[ranking.POSITIVITY_SCORES ])
-                plt.title("Distribution des scores de positivité")
+                plt.title(ranking.POSITIVITY_SCORES)
                 st.pyplot()
                 
     top_k = recommand()
