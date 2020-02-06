@@ -3,11 +3,11 @@ import pandas as pd
 from math import exp, tanh
 
 SPRING, SUMMER, AUTUMN, WINTER = "Printemps", "Été", "Automne", "Hiver"
-GLOBAL_SCORES = "recomender system score"
-AVERAGE_SCORES = "average user score"
-RECENCY_SCORES = "recency distribution"
-POSITIVITY_SCORES = "positivity distribution"
-NUM_MATCHING_RATINGS = "nombre d'avis correspondant aux filtres"
+GLOBAL_SCORES = "D'après les critères que vous avez sélectionnés, l'hotel obtient (note de 0 à 5) :"
+AVERAGE_SCORES = "Note moyenne de l'hôtel :"
+RECENCY_SCORES = "Distribution de l'âge des avis"
+POSITIVITY_SCORES = "Distribution de la positivité des avis"
+NUM_MATCHING_RATINGS = "Nombre d'avis pris en compte :"
 
 def rank_from_scores(df: pd.DataFrame,
         city: t.Optional[str]=None,

@@ -6,7 +6,7 @@ import pandas as pd
 
 
 
-SCORE_SVD = "Score SVD" 
+SCORE_SVD = "D'après vos précédents avis, cet hôtel obtiendrait une note (note de 0 à 5) :" 
 
 
 

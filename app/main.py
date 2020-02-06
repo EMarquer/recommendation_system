@@ -12,7 +12,7 @@ plt.rcParams["figure.figsize"] = (7,4)
 # CONSTANTS
 SEASONS = ('Automne', 'Hiver', 'Éte','Printemps')
 
-TITLE = "Recommandation"
+TITLE = "Quand est ce qu'on arrive?"
 SIDE_TITLE = "Paramètres"
 
 
@@ -71,7 +71,8 @@ more_details= st.sidebar.checkbox(DETAILS_MESSAGE)
 
 
 
-AVERAGE_SCORE = "score"
+AVERAGE_SCORE = "Synthèse des scores :"
+
 
 
 
@@ -101,16 +102,19 @@ def recommand_ui():
 
 
     def row_to_gui(top_k,detail):
-
-
+        top_k = top_k[[AVERAGE_SCORE, ranking.AVERAGE_SCORES, 
+                       svd.SCORE_SVD,
+                       ranking.GLOBAL_SCORES, ranking.RECENCY_SCORES, ranking.POSITIVITY_SCORES, ranking.NUM_MATCHING_RATINGS]]
+        
         col_sel = [ranking.GLOBAL_SCORES]
         
         if detail:
             col_sel = top_k.columns.difference([ranking.RECENCY_SCORES,ranking.POSITIVITY_SCORES])
         
         if user_id:
-            col_sel.extend([svd.SCORE_SVD,AVERAGE_SCORE])
-
+            
+            col_sel = [c for c in col_sel] + [svd.SCORE_SVD,AVERAGE_SCORE]
+            col_sel = list(set(col_sel))
                     
         for index, row in top_k.iterrows():
             st.table(row[col_sel])
@@ -124,7 +128,14 @@ def recommand_ui():
                 plt.title("Distribution des scores de positivité")
                 st.pyplot()
                 
-    top_k = recommand() 
+    top_k = recommand()
+
+    if more_details:
+        top_k[ranking.AVERAGE_SCORES] = top_k[ranking.AVERAGE_SCORES].apply(lambda x: "{:.4f}".format(x))
+    top_k[ranking.GLOBAL_SCORES] = top_k[ranking.GLOBAL_SCORES].apply(lambda x: "{:.4f}".format(x))
+    if user_id:
+        top_k[svd.SCORE_SVD] = top_k[svd.SCORE_SVD].apply(lambda x: "{:.4f}".format(x))
+        top_k[AVERAGE_SCORE] = top_k[AVERAGE_SCORE].apply(lambda x: "{:.4f}".format(x))  
     row_to_gui(top_k,more_details)
 
                     
