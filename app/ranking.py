@@ -43,6 +43,7 @@ def rank_from_scores(df: pd.DataFrame,
 
     # ponderate the scores by the recency of the review (exp(-x), x being the number of days since the review was posted)
     recency_multiplier = df["gap_stay_today"].dt.days.apply(lambda days: exp(-days))
+    recency_multiplier = df["gap_stay_today"].dt.days.apply(lambda days: 1/days)
 
     # compute the positivity scores
     positivity_scores = (df["text_polarity"] * (1 - df["text_objectivity"]))
@@ -52,6 +53,8 @@ def rank_from_scores(df: pd.DataFrame,
     # compute the similarity between the rating and the positivity_scores
     centered_scores = (scores - 3) / 2  # bring the score to -1, 1
     polarity_similarity = 1 - ((positivity_scores - centered_scores).apply(abs)/2)
+    #print(polarity_similarity.describe())
+    #print((recency_multiplier * (1 + df['user_expertise']) * polarity_similarity).describe())
 
     # weighted average
     def process_hotel(group):
@@ -62,6 +65,7 @@ def rank_from_scores(df: pd.DataFrame,
         
         # the expertise (+1 because it start at 0) is the base weight 
         expertise_weight = 1 + df['user_expertise'][indexes]
+        expertise_weight = 0.5 + df['user_expertise'][indexes]
         weights = expertise_weight
 
         # add the recency weighting if necessary
@@ -71,12 +75,12 @@ def rank_from_scores(df: pd.DataFrame,
 
         # add the polarity weighting if necessary
         if positivity:
-            polarity_similarity_group = polarity_similarity[indexes]
+            polarity_similarity_group = polarity_similarity[indexes]#positivity_scores[indexes]#
             weights *= polarity_similarity_group
 
         # return the weighted scores
         scores = group
-        return (scores * weights).sum() / weights.sum()
+        return ((scores * weights).sum() / weights.sum()) * tanh(len(group))
     
     # compute the score of each hotel
     final_scores = scores.groupby(df["hotel"][scores.index]).apply(process_hotel)
@@ -123,16 +127,30 @@ if __name__ == "__main__":
 
     print("loaded")
     final_scores = rank_from_scores(df)
-    print(final_scores.head())
+    print(final_scores.head(20))
+    print(final_scores[GLOBAL_SCORES].describe())
+    print((final_scores[GLOBAL_SCORES]==5).sum())
     final_scores = rank_from_scores(df, min_score=4)
     print(final_scores.head())
+    print(final_scores[GLOBAL_SCORES].describe())
+    print((final_scores[GLOBAL_SCORES]==5).sum())
     final_scores = rank_from_scores(df, season={SPRING})
     print(final_scores.head())
+    print(final_scores[GLOBAL_SCORES].describe())
+    print((final_scores[GLOBAL_SCORES]==5).sum())
     final_scores = rank_from_scores(df, season={SUMMER, SPRING})
     print(final_scores.head())
+    print(final_scores[GLOBAL_SCORES].describe())
+    print((final_scores[GLOBAL_SCORES]==5).sum())
     final_scores = rank_from_scores(df, recency=False)
-    print(final_scores.head())
+    print(final_scores.head(20))
+    print(final_scores[GLOBAL_SCORES].describe())
+    print((final_scores[GLOBAL_SCORES]==5).sum())
     final_scores = rank_from_scores(df, positivity=False)
-    print(final_scores.head())
+    print(final_scores.head(20))
+    print(final_scores[GLOBAL_SCORES].describe())
+    print((final_scores[GLOBAL_SCORES]==5).sum())
     final_scores = rank_from_scores(df, positivity=False, recency=False)
-    print(final_scores.head())
+    print(final_scores.head(20))
+    print(final_scores[GLOBAL_SCORES].describe())
+    print((final_scores[GLOBAL_SCORES]==5).sum())
