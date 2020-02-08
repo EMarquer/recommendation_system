@@ -18,7 +18,7 @@ SIDE_TITLE = "Paramètres"
 
 
 
-SCORE_FILTERING_MESSAGE = "Filtrer par le score moyen des avis :"
+SCORE_FILTERING_MESSAGE = "Filtrer par la note moyenne des hôtels :"
 LOCATION_MESSAGE = "Entrez votre position :"
 SEASON_DEPARTURE_MESSAGE = "Entrez la période du voyage :"
 IDENTIFIER_MESSAGE="Entrez votre identifiant : "
@@ -111,8 +111,8 @@ def recommand_ui():
 
 
         elif detail and not user_id:
-            sort_col = [ranking.AVERAGE_SCORES, 
-                       ranking.GLOBAL_SCORES, ranking.RECENCY_SCORES, ranking.POSITIVITY_SCORES, ranking.NUM_MATCHING_RATINGS]
+            sort_col = [ranking.GLOBAL_SCORES, 
+                       ranking.AVERAGE_SCORES, ranking.RECENCY_SCORES, ranking.POSITIVITY_SCORES, ranking.NUM_MATCHING_RATINGS]
 
         else:
             sort_col = [ranking.GLOBAL_SCORES]
